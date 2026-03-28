@@ -1,27 +1,20 @@
 import numpy as np
-import gymnasium as gym
 
 from highway_env.envs.highway_env import HighwayEnv
 from highway_env.vehicle.behavior import IDMVehicle
 from highway_env.vehicle.controller import ControlledVehicle
 
 
-# =========================
-# Vehicle Classes
-# =========================
-
 class NormalVehicle(IDMVehicle):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.color = (0, 255, 0)  # green
+        self.color = (0, 255, 0)
 
 
 class AggressiveVehicle(IDMVehicle):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.color = (255, 0, 0)  # red
-
+        self.color = (255, 0, 0)
         self.target_speed = 35
         self.TIME_WANTED = 0.5
         self.MAX_ACCELERATION = 5.0
@@ -33,9 +26,7 @@ class AggressiveVehicle(IDMVehicle):
 class LazyVehicle(IDMVehicle):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.color = (0, 0, 255)  # blue
-
+        self.color = (0, 0, 255)
         self.target_speed = 15
         self.TIME_WANTED = 2.5
         self.POLITENESS = 0.8
@@ -50,54 +41,46 @@ class LazyVehicle(IDMVehicle):
 class EgoVehicle(ControlledVehicle):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.color = (255, 255, 0)  # yellow
+        self.color = (255, 255, 0)
 
-
-# =========================
-# Custom Environment
-# =========================
 
 class CustomHighwayEnv(HighwayEnv):
-
     def _create_vehicles(self):
         self.road.vehicles = []
-
         n = self.config["vehicles_count"]
 
         for _ in range(n):
             r = np.random.rand()
 
             if r < 0.2:
-                v = AggressiveVehicle.create_random(self.road)
+                vehicle = AggressiveVehicle.create_random(self.road)
             elif r < 0.4:
-                v = LazyVehicle.create_random(self.road)
+                vehicle = LazyVehicle.create_random(self.road)
             else:
-                v = NormalVehicle.create_random(self.road)
+                vehicle = NormalVehicle.create_random(self.road)
 
-            self.road.vehicles.append(v)
+            self.road.vehicles.append(vehicle)
 
         ego = EgoVehicle.create_random(self.road)
         self.road.vehicles.append(ego)
         self.vehicle = ego
 
 
-# =========================
-# Demo with Continuous Rendering
-# =========================
-
 if __name__ == "__main__":
     env = CustomHighwayEnv(render_mode="human")
 
-    env.configure({
-        "vehicles_count": 500,
-        "duration": 40,
-        "simulation_frequency": 30,
-        "policy_frequency": 5,
-        "screen_width": 1200,
-        "screen_height": 400,
-        "lanes_count": 4,
-        "vehicles_density": 30,
-    })
+    env.configure(
+        {
+            "vehicles_count": 50,
+            "duration": 40,
+            "simulation_frequency": 30,
+            "policy_frequency": 5,
+            "screen_width": 1200,
+            "screen_height": 400,
+            "lanes_count": 4,
+            "vehicles_density": 30,
+        }
+    )
 
     num_episodes = 50
     max_steps = 300
